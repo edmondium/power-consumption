@@ -1,0 +1,9 @@
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Armay"
+    given-names: "Edmond Febrinicko"
+    orcid: "https://orcid.org/0000-0002-3822-1138"
+title: "edmondium/power-consumption: 1.0.0"
+version: 1.0.0
+doi: 10.5281/zenodo.8076959
+date-released: 2023-06-24
