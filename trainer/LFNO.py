@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import os
 import tensorflow as tf
 from tensorflow import keras
 
@@ -99,9 +99,12 @@ def make_input_fn(data_file,
                                        record_defaults,
                                        header=True,
                                        select_cols=cols)  # TensorFlow 2
-  dataset = dataset.apply(tf.contrib.data.sliding_window_batch(window_size=seq_len))
+  dataset = dataset.window(size=seq_len, shift=1, drop_remainder=True)
+  #dataset = dataset.flat_map(lambda window: window.batch(seq_len))
+  #dataset = dataset.apply(tf.data.Dataset.window(size=seq_len).flat_map(lambda x: x.batch(seq_len)))
+  #dataset = dataset.apply(tf.contrib.data.sliding_window_batch(window_size=seq_len))
   dataset = dataset.map(_mk_data)
-
+  #dataset = dataset.map(_mk_data, num_parallel_calls=os.cpu_count())
   if train_flag:
     dataset = dataset.filter(_filter_data).shuffle(60 * 60 * 24 * 7)
 
@@ -157,7 +160,8 @@ def model_fn(features, labels, mode, params):
 
     # Laplace-Fourier neural operator
     # Assuming 'energies' is a parameter in 'params' that contains the E_j values
-    energies = tf.constant(params['energies'], dtype=tf.float32)
+    #energies = tf.constant(params['energies'], dtype=tf.float32)
+    energies = tf.constant(params['energies'], dtype=tf.float64)
     E = tf.expand_dims(seq_data, -1)  # Expand dims to allow broadcasting
     attention_weights = 1.0 / (E - energies)
     attention_output = tf.reduce_sum(attention_weights, axis=2)  # Sum over the energy levels
